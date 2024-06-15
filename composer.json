@@ -13,5 +13,7 @@
             "email": "richie.lugo.recillas.1990@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
 }
