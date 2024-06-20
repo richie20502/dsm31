@@ -15,6 +15,10 @@ class AuthController {
         require __DIR__ . '/../Views/login.php';
     }
 
+    public function showRegisterForm() {
+        require __DIR__ . '/../Views/register.php';
+    }
+
     public function login() {
         $username = $_POST['username'];
         $password = $_POST['password'];
@@ -37,6 +41,35 @@ class AuthController {
             }
         } else {
             echo "Invalid username.";
+        }
+    }
+
+    public function register() {
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $phone = $_POST['phone'];
+        $address = $_POST['address'];
+        $user_type_id = $_POST['user_type_id'];
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        if ($password !== $confirm_password) {
+            echo "Passwords do not match.";
+            return;
+        }
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $connection = $this->db->getConnection();
+        $stmt = $connection->prepare("INSERT INTO users (first_name, last_name, email, phone, address, user_type_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssis", $first_name, $last_name, $email, $phone, $address, $user_type_id, $hashed_password);
+
+        if ($stmt->execute()) {
+            header('Location: /login');
+            exit();
+        } else {
+            echo "Error: Could not register user.";
         }
     }
 
