@@ -8,5 +8,5 @@ Env::load(__DIR__ . '/../');
 
 $router = require __DIR__ . '/../routes.php';
 
-// Despachar las solicitudes
+
 $router->dispatch();
