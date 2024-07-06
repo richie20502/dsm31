@@ -8,7 +8,7 @@ class AuthController {
     private $db;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->db = Database::getInstance(); // Solo instancia Database
     }
 
     public function showLoginForm() {
@@ -23,8 +23,8 @@ class AuthController {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $connection = $this->db->getConnection();
-        $stmt = $connection->prepare("SELECT * FROM users WHERE username = ?");
+        $connection = $this->db->getConnection(); // Obtiene la conexión directamente
+        $stmt = $connection->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -45,26 +45,27 @@ class AuthController {
     }
 
     public function register() {
+    
         $first_name = $_POST['first_name'];
         $last_name = $_POST['last_name'];
         $email = $_POST['email'];
         $phone = $_POST['phone'];
         $address = $_POST['address'];
-        $user_type_id = $_POST['user_type_id'];
+        $user_type_id = 1;
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
-
+    
         if ($password !== $confirm_password) {
             echo "Passwords do not match.";
             return;
         }
-
+    
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-        $connection = $this->db->getConnection();
+    
+        $connection = $this->db->getConnection(); // Obtiene la conexión directamente
         $stmt = $connection->prepare("INSERT INTO users (first_name, last_name, email, phone, address, user_type_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("sssssis", $first_name, $last_name, $email, $phone, $address, $user_type_id, $hashed_password);
-
+    
         if ($stmt->execute()) {
             header('Location: /login');
             exit();

@@ -9,9 +9,8 @@ class HomeController {
     private $db;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->db = Database::getInstance();
     }
-
 
     public function index() {
         $connection = $this->db->getConnection();

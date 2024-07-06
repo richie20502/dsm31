@@ -17,4 +17,11 @@ $router->add('/register', 'AuthController@register', 'POST');
 $router->add('/dashboard', 'DashboardController@index', 'GET', [[AuthMiddleware::class, 'handle']]);
 $router->add('/profile', 'ProfileController@show', 'GET', [[AuthMiddleware::class, 'handle']]);
 
+$router->add('/products', 'ProductController@index');
+$router->add('/products/create', 'ProductController@create');
+$router->add('/products/store', 'ProductController@store', 'POST');
+$router->add('/products/edit/{id}', 'ProductController@edit');
+$router->add('/products/update/{id}', 'ProductController@update', 'POST');
+$router->add('/products/delete/{id}', 'ProductController@delete');
+
 return $router;

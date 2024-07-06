@@ -5,10 +5,9 @@ namespace App\Core;
 use mysqli;
 
 class Database {
-    private static $instance = null;
     private $connection;
 
-    private function __construct() {
+    public function __construct() {
         $this->connect();
     }
 
@@ -25,22 +24,9 @@ class Database {
         }
     }
 
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
     public function getConnection() {
         return $this->connection;
     }
-
-    // Evitar que se pueda clonar la instancia
-    private function __clone() {}
-
-    // Evitar que se pueda deserializar la instancia
-    public function __wakeup() {}
 
     public function __destruct() {
         if ($this->connection) {
