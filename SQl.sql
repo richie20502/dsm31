@@ -142,3 +142,6 @@ VALUES
 ('Producto048', 'Descripción de Producto 048', 185.1, 136, 4, 8),
 ('Producto049', 'Descripción de Producto 049', 190.2, 140, 1, 9),
 ('Producto050', 'Descripción de Producto 050', 195.3, 144, 2, 10);
+
+
+ALTER TABLE sales ADD COLUMN status ENUM('open', 'closed') DEFAULT 'open';
