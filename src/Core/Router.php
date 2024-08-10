@@ -2,52 +2,56 @@
 
 namespace App\Core;
 
-class Router {
+class Router
+{
     private $routes = [];
 
-    public function add($path, $callback, $method = 'GET', $middleware = []) {
+    public function add($path, $callback, $method = 'GET', $middleware = [])
+    {
+        // Convertir parámetros de ruta a expresiones regulares
+        $path = preg_replace('/\{([a-z]+)\}/', '(?P<$1>[^/]+)', $path);
+        $path = '#^' . $path . '$#';
         $this->routes[$method][$path] = ['callback' => $callback, 'middleware' => $middleware];
     }
 
-    public function dispatch() {
+    public function dispatch()
+    {
         $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
-        if (isset($this->routes[$method][$url])) {
-            $route = $this->routes[$method][$url];
-            $middleware = $route['middleware'];
+        foreach ($this->routes[$method] as $pattern => $route) {
+            if (preg_match($pattern, $url, $matches)) {
+                $params = array_intersect_key($matches, array_flip(array_filter(array_keys($matches), 'is_string')));
 
-            // Ejecutar el middleware
-            foreach ($middleware as $mw) {
-                if (is_callable($mw)) {
-                    call_user_func($mw);
-                } else if (is_array($mw) && count($mw) == 2) {
-                    list($class, $method) = $mw;
-                    if (class_exists($class) && method_exists($class, $method)) {
-                        call_user_func([$class, $method]);
+                foreach ($route['middleware'] as $middleware) {
+                    $middlewareInstance = new $middleware;
+                    if (!$middlewareInstance->handle()) {
+                        return;  // Stop further execution if middleware fails
                     }
                 }
-            }
 
-            $callback = $route['callback'];
-            if (is_callable($callback)) {
-                call_user_func($callback);
-            } else if (is_string($callback)) {
-                $this->callController($callback);
+                $callback = $route['callback'];
+                if (is_callable($callback)) {
+                    call_user_func_array($callback, $params);
+                } else if (is_string($callback)) {
+                    $this->callControllerWithParams($callback, $params);
+                }
+                return;
             }
-        } else {
-            http_response_code(404);
-            echo "404 Not Found";
         }
+
+        http_response_code(404);
+        echo "404 Not Found";
     }
 
-    private function callController($callback) {
+    private function callControllerWithParams($callback, $params)
+    {
         list($controller, $method) = explode('@', $callback);
         $controller = "App\\Controllers\\$controller";
         if (class_exists($controller)) {
-            $controller = new $controller();
-            if (method_exists($controller, $method)) {
-                $controller->$method();
+            $controllerObject = new $controller();
+            if (method_exists($controllerObject, $method)) {
+                call_user_func_array([$controllerObject, $method], $params);
             } else {
                 http_response_code(404);
                 echo "404 Method Not Found";

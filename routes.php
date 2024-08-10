@@ -24,4 +24,7 @@ $router->add('/products/edit/{id}', 'ProductController@edit');
 $router->add('/products/update/{id}', 'ProductController@update', 'POST');
 $router->add('/products/delete/{id}', 'ProductController@delete');
 
+$router->add('/cart/add', 'CartController@add', 'POST');
+$router->add('/cart/list', 'CartController@list', 'GET');
+
 return $router;
